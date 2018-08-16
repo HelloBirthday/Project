@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-Init
+Project
 
-=======
-# Project
->>>>>>> github/master
+

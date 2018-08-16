@@ -9,7 +9,7 @@
 #include <ctype.h>
 
 
-#define USB_FOLDER_NAME "/devices/ff500000.usb"
+#define USB_FOLDER_NAME "/sys/bus/usb/devices"
 #define USB_PID_FILE_NAME "idProduct"
 #define USB_VID_FILE_NAME "idVendor"
 
@@ -80,7 +80,7 @@ int scan_file_id(char *filename)
     					vid = htoi(buf);
     					if(vid == result_usb_vid)
     					{
-    						printf("%s:find 4g model:%s\n",__func__,filename);
+    						printf("%s:Find USB Product:%s\n",__func__,filename);
     						return 0;
     					}	
     				}
@@ -130,16 +130,31 @@ int scan_dir(char *dir, int depth)   // 定义目录扫描函数
     chdir("..");                                                  // 回到上级目录  
     closedir(dp);                                                 // 关闭子目录流  
 
-    return 0;
+    return ret;
 }  
 
-int main(void)
+int main(int argc, char **argv)
 {
+    int ret = -1;
 
-	result_usb_vid = 0x12d1;
-	result_usb_pid = 0x15c1;
-	
-	scan_dir(USB_FOLDER_NAME, 0); 
+
+    if(argc < 2){
+        result_usb_vid = 0x18D1;
+        result_usb_pid = 0xDDDD;
+    }else if(argc == 3){
+        result_usb_vid = htoi(argv[1]);
+        result_usb_pid = htoi(argv[2]);
+        //printf("%s 0x%x:0x%x\n",argv[0],htoi(argv[1]),htoi(argv[2]));
+    }else{
+        fprintf(stderr, "Usage: %s VID PID \n\texample : %s 0x1a40 0x0201\n", argv[0],argv[0]);
+        return 1;
+    }
+
+
+	ret = scan_dir(USB_FOLDER_NAME, 0); 
+    if(ret < 0){
+        printf("%s:Not Find USB VID:PID <%x:%x>\n",argv[0],result_usb_vid,result_usb_pid);
+    }
 
 	return  0;
 }
